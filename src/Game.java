@@ -20,7 +20,7 @@ import game2D.*;
 
 public class Game extends GameCore 
 {
-	// Useful game constants
+	// Usaaaeful game constants
 	static int screenWidth = 512;
 	static int screenHeight = 384;
 
