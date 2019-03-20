@@ -19,7 +19,7 @@ import game2D.*;
 
 public class Game extends GameCore {
     // Useful game constants
-    static int screenWidth = 512;
+    static int screenWidth = 1024;
     static int screenHeight = 384;
 
     float lift = 0.005f;
@@ -29,12 +29,12 @@ public class Game extends GameCore {
     boolean up = false;
     boolean left;
     boolean right;
+    boolean falling = true;
 
     // Game resources
     Animation playerAnim;
 
     Sprite player = null;
-    ArrayList<Sprite> clouds = new ArrayList<Sprite>();
 
     TileMap tmap = new TileMap();    // Our tile map, note that we load it in init()
 
@@ -116,11 +116,6 @@ public class Game extends GameCore {
         g.setColor(Color.white);
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        // Apply offsets to sprites then draw them
-        for (Sprite s : clouds) {
-            s.setOffsets(xo, yo);
-            s.draw(g);
-        }
 
         // Apply offsets to player and draw 
         player.setOffsets(xo, yo);
@@ -143,8 +138,9 @@ public class Game extends GameCore {
     public void update(long elapsed) {
 
         // Make adjustments to the speed of the sprite due to gravity
-        player.setVelocityY(player.getVelocityY() + (gravity * elapsed));
-
+        if (falling) {
+            player.setVelocityY(player.getVelocityY() + (gravity * elapsed));
+        }
         player.setAnimationSpeed(1.0f);
 
         if (up) {
@@ -177,8 +173,6 @@ public class Game extends GameCore {
             }
         }
 
-        for (Sprite s : clouds)
-            s.update(elapsed);
 
         // Now update the sprites animation and position
         player.update(elapsed);
@@ -237,10 +231,20 @@ public class Game extends GameCore {
         if (player.getY() + player.getHeight() > tmap.getPixelHeight()) {
             // Put the player back on the map
             player.setY(tmap.getPixelHeight() - player.getHeight());
-
             // and make them bounce
             player.setVelocityY(-player.getVelocityY() * (0.03f * elapsed));
         }
+
+        int tileCoordX = Math.round(player.getX())/tmap.getTileWidth();
+        int tileCoordY = Math.round(player.getY())/tmap.getTileHeight();
+
+        System.out.println("X: " + tileCoordX + "Y: " + tileCoordY);
+        System.out.println(falling);
+        if(tmap.getTileChar(tileCoordX,tileCoordY) == 'p' || tmap.getTileChar(tileCoordX,tileCoordY) == 'b'){
+            falling=false;
+        }
+
+
     }
 
 
