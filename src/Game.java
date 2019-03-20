@@ -22,8 +22,10 @@ public class Game extends GameCore {
     static int screenWidth = 1024;
     static int screenHeight = 384;
 
+    int jumpsDone = 0;//keeps track of jumps before landing so as to only allow 2 before landing on solid surface.
+
     float lift = 0.005f;
-    float gravity = 0.0001f;
+    float gravity = 0.0005f;
 
     // Game state flags
     boolean up = false;
@@ -31,6 +33,7 @@ public class Game extends GameCore {
     boolean right;
     boolean falling = true;
 
+    boolean gameOver = false;
     // Game resources
     Animation playerAnim;
 
@@ -89,8 +92,8 @@ public class Game extends GameCore {
     public void initialiseGame() {
         total = 0;
 
-        player.setX(64);
-        player.setY(280);
+        player.setX(20);
+        player.setY(100);
         player.setVelocityX(0);
         player.setVelocityY(0);
         player.show();
@@ -121,6 +124,7 @@ public class Game extends GameCore {
         player.setOffsets(xo, yo);
         player.draw(g);
 
+
         // Apply offsets to tile map and draw  it
         tmap.draw(g, xo, yo);
 
@@ -136,50 +140,59 @@ public class Game extends GameCore {
      * @param elapsed The elapsed time between this call and the previous call of elapsed
      */
     public void update(long elapsed) {
-
-        // Make adjustments to the speed of the sprite due to gravity
-        if (falling) {
-            player.setVelocityY(player.getVelocityY() + (gravity * elapsed));
-        }
-        player.setAnimationSpeed(1.0f);
-
-        if (up) {
-            if (player.getVelocityY() > 0) {//only allow jump when trajectory is downwards
-                player.setVelocityY(-0.10f);
-                up = false;
-                updateAnim("up");
-            }
-        }
-
-        if (left) {
-            if (player.getVelocityX() > 0.04f) {//slow down dramatically if trying to move in other direction
-                player.setVelocityX(0.04f);
-                left = false;
+        if (!gameOver) { //if the game is running
+            // Make adjustments to the speed of the sprite due to gravity
+            if (falling) {
+                player.setVelocityY(player.getVelocityY() + (gravity * elapsed));
             } else {
-                player.setVelocityX(player.getVelocityX() - 0.04f);
-                left = false;
-                updateAnim("left");
+                player.setVelocityY(0);
             }
-        }
+            player.setAnimationSpeed(1.0f);
 
-        if (right) {
-            if (player.getVelocityX() < -0.04f) {//slow down dramatically if trying to move in other direction
-                player.setVelocityX(-0.04f);
-                right = false;
-            } else {
-                player.setVelocityX(player.getVelocityX() + 0.04f);
-                right = false;
-                updateAnim("right");
+            if (up) {
+                if (jumpsDone < 2) {
+                    if (player.getVelocityY() >= 0) {//only allow jump when trajectory is downwards
+                        player.setVelocityY(-0.20f);
+                        up = false;
+                        updateAnim("up");
+                        Sound s = new Sound("sounds/jump.wav");
+                        s.start();
+                        jumpsDone++;
+                    }
+                }
             }
+
+            if (left) {
+                if (player.getVelocityX() > 0.04f) {//slow down dramatically if trying to move in other direction
+                    player.setVelocityX(0.04f);
+                    left = false;
+                } else {
+                    player.setVelocityX(player.getVelocityX() - 0.04f);
+                    left = false;
+                    updateAnim("left");
+                }
+            }
+
+            if (right) {
+                if (player.getVelocityX() < -0.04f) {//slow down dramatically if trying to move in other direction
+                    player.setVelocityX(-0.04f);
+                    right = false;
+                } else {
+                    player.setVelocityX(player.getVelocityX() + 0.04f);
+                    right = false;
+                    updateAnim("right");
+                }
+            }
+
+
+            // Now update the sprites animation and position
+            player.update(elapsed);
+
+            // Then check for any collisions that may have occurred
+            handleTileMapCollisions(player, elapsed);
+        } else {//if the game is over
+
         }
-
-
-        // Now update the sprites animation and position
-        player.update(elapsed);
-
-        // Then check for any collisions that may have occurred
-        handleTileMapCollisions(player, elapsed);
-
 
     }
 
@@ -206,6 +219,11 @@ public class Game extends GameCore {
                 playerAnim = new Animation();
                 playerAnim.addFrame(loadImage("images/sprites/player_dead.png"), 5);
                 break;
+            case "pause":
+                playerAnim = new Animation();
+                playerAnim.addFrame(loadImage("images/sprites/player_pause1.png"), 5);
+                playerAnim.addFrame(loadImage("images/sprites/player_pause2.png"), 5);
+                break;
             default:
                 playerAnim = new Animation();
                 playerAnim.addFrame(loadImage("images/sprites/player_pause1.png"), 5);
@@ -231,20 +249,40 @@ public class Game extends GameCore {
         if (player.getY() + player.getHeight() > tmap.getPixelHeight()) {
             // Put the player back on the map
             player.setY(tmap.getPixelHeight() - player.getHeight());
-            // and make them bounce
-            player.setVelocityY(-player.getVelocityY() * (0.03f * elapsed));
         }
 
-        int tileCoordX = Math.round(player.getX())/tmap.getTileWidth();
-        int tileCoordY = Math.round(player.getY())/tmap.getTileHeight();
+        int tileCoordX = Math.round(player.getX() / tmap.getTileWidth());
+        int tileCoordY = Math.round(player.getY() / tmap.getTileHeight());//offset by 1 so the player sits on top of the block
 
-        System.out.println("X: " + tileCoordX + "Y: " + tileCoordY);
-        System.out.println(falling);
-        if(tmap.getTileChar(tileCoordX,tileCoordY) == 'p' || tmap.getTileChar(tileCoordX,tileCoordY) == 'b'){
-            falling=false;
+        if (tmap.getTileChar(tileCoordX, tileCoordY) == 'p' || tmap.getTileChar(tileCoordX, tileCoordY) == 'b') {//if grass or dirt block touched
+            if(falling){
+                player.setVelocityX(0);
+            }
+            player.setY((float) (player.getY()-(0.5*player.getHeight()-5)));
+            falling = false;
+            jumpsDone = 0;
+        } else {
+            falling = true;
+        }
+        if (tmap.getTileChar(tileCoordX, tileCoordY) == 't') {
+            endGame();
         }
 
+    }
 
+    private void endGame() {
+        updateAnim("dead");
+        player.setVelocityX(0);
+        player.setVelocityY(0);
+        player.shiftY(-5 * tmap.getTileHeight());
+        gameOver = true;
+    }
+
+    private void resetGame() {//reset the player character to original state
+        gameOver = false;
+        player.setX(20);
+        player.setY(100);
+        updateAnim("pause");
     }
 
 
@@ -259,19 +297,17 @@ public class Game extends GameCore {
 
         if (key == KeyEvent.VK_ESCAPE) stop();
 
-        if (key == KeyEvent.VK_UP) up = true;
-
+        if (key == KeyEvent.VK_UP) {
+            up = true;
+        }
         if (key == KeyEvent.VK_LEFT) left = true;
 
         if (key == KeyEvent.VK_RIGHT) right = true;
 
+        if (key == KeyEvent.VK_F5) resetGame();
 
-        if (key == KeyEvent.VK_S) {
-            // Example of playing a sound as a thread
-            Sound s = new Sound("sounds/caw.wav");
-            s.start();
-        }
     }
+
 
     public boolean boundingBoxCollision(Sprite s1, Sprite s2) {
         return false;
@@ -287,9 +323,6 @@ public class Game extends GameCore {
         switch (key) {
             case KeyEvent.VK_ESCAPE:
                 stop();
-                break;
-            case KeyEvent.VK_UP:
-                up = false;
                 break;
             default:
                 break;
