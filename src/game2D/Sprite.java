@@ -144,6 +144,7 @@ public class Sprite {
         	radius = width / 2.0f;
         else
         	radius = height / 2.0f;
+
     }
 
     /**
