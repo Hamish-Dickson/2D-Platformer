@@ -20,7 +20,7 @@ import game2D.*;
 
 public class Game extends GameCore 
 {
-	// Usaaaeful game constants
+	// Useful game constants
 	static int screenWidth = 512;
 	static int screenHeight = 384;
 
@@ -31,7 +31,7 @@ public class Game extends GameCore
     boolean flap = false;
 
     // Game resources
-    Animation landing;
+    Animation playerAnim;
     
     Sprite	player = null;
     ArrayList<Sprite> clouds = new ArrayList<Sprite>();
@@ -69,11 +69,13 @@ public class Game extends GameCore
         // Create a set of background sprites that we can 
         // rearrange to give the illusion of motion
         
-        landing = new Animation();
-        landing.loadAnimationFromSheet("images/landbird.png", 4, 1, 60);
+        playerAnim = new Animation();
+        playerAnim.addFrame(loadImage("images/sprites/player_pause1.png"), 4);
+        playerAnim.addFrame(loadImage("images/sprites/player_pause2.png"), 4);
         
         // Initialise the player with an animation
-        player = new Sprite(landing);
+        player = new Sprite(playerAnim);
+
         
         // Load a single cloud animation
         Animation ca = new Animation();

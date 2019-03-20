@@ -41,8 +41,8 @@ public class TileMap
 	private Tile [][] tmap;		// The tile map grid, initially null
 	private int mapWidth=0;		// The maps width in tiles
 	private int mapHeight=0;	// The maps height in tiles
-	private int tileWidth=0;	// The width of a tile in pixels
-	private int tileHeight=0;	// The height of a tile in pixels
+	private int tileWidth=32;	// The width of a tile in pixels
+	private int tileHeight=32;	// The height of a tile in pixels
 	
 	// imagemap contains a set of character to image mappings for
 	// quick loop up of the image associated with a given character.
