@@ -402,7 +402,6 @@ public class Game extends GameCore {
         updateAnim("dead");
         player.setVelocityX(0);
         player.setVelocityY(0);
-        //player.setY(150);
         gameOver = true;
         status = "Dead X.X";
         Sound s = new Sound("sounds/death.wav");
