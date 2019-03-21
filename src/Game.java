@@ -19,7 +19,7 @@ import game2D.*;
 
 public class Game extends GameCore {
     // Useful game constants
-    static int screenWidth = 1024;
+    static int screenWidth = 562;
     static int screenHeight = 384;
 
     int jumpsDone = 0;//keeps track of jumps before landing so as to only allow 2 before landing on solid surface.
@@ -38,6 +38,10 @@ public class Game extends GameCore {
     Animation playerAnim;
 
     Sprite player = null;
+    Sprite enemy1 = null;
+    Sprite enemy2 = null;
+    Sprite enemy3 = null;
+
 
     TileMap tmap = new TileMap();    // Our tile map, note that we load it in init()
 
@@ -68,12 +72,24 @@ public class Game extends GameCore {
         // Load the tile map and print it out so we can check it is valid
         tmap.loadMap("maps", mapFile);
 
+
         playerAnim = new Animation();
         playerAnim.addFrame(loadImage("images/sprites/player_pause1.png"), 4);
         playerAnim.addFrame(loadImage("images/sprites/player_pause2.png"), 4);
 
+        Animation enemyAnim = new Animation();
+        enemyAnim.addFrame(loadImage("images/sprites/enemy_0.png"), 4);
+        enemyAnim.addFrame(loadImage("images/sprites/enemy_1.png"), 4);
+        enemyAnim.play();
+
         // Initialise the player with an animation
         player = new Sprite(playerAnim);
+
+
+        //Initialise the enemies with animation
+        enemy1 = new Sprite(enemyAnim);
+        enemy2 = new Sprite(enemyAnim);
+        enemy3 = new Sprite(enemyAnim);
 
 
         initialiseGame();
@@ -92,6 +108,44 @@ public class Game extends GameCore {
         player.setVelocityX(0);
         player.setVelocityY(0);
         player.show();
+
+        setupEnemies();
+
+        enemy1.show();
+        enemy2.show();
+        enemy3.show();
+    }
+
+    private void setupEnemies() {
+        switch (level) {
+            case 1:
+                enemy1.setX(230);
+                enemy2.setX(400);
+                enemy3.setX(800);
+
+                enemy1.setY(150);
+                enemy2.setY(180);
+                enemy3.setY(150);
+                break;
+            case 2:
+                enemy1.setX(270);
+                enemy2.setX(450);
+                enemy3.setX(800);
+
+                enemy1.setY(170);
+                enemy2.setY(200);
+                enemy3.setY(250);
+                break;
+            default:
+                enemy1.setX(230);
+                enemy2.setX(400);
+                enemy3.setX(800);
+
+                enemy1.setY(150);
+                enemy2.setY(180);
+                enemy3.setY(150);
+        }
+
     }
 
     /**
@@ -103,8 +157,9 @@ public class Game extends GameCore {
 
         // First work out how much we need to shift the view
         // in order to see where the player is.
-        int xo = 0;
+        int xo = (int) -player.getX() + 20;
         int yo = 0;
+
 
         // If relative, adjust the offset so that
         // it is relative to the player
@@ -115,10 +170,17 @@ public class Game extends GameCore {
         g.fillRect(0, 0, getWidth(), getHeight());
 
 
-        // Apply offsets to player and draw 
+        // Apply offsets to sprites and draw
         player.setOffsets(xo, yo);
+        enemy1.setOffsets(xo, yo);
+        enemy2.setOffsets(xo, yo);
+        enemy3.setOffsets(xo, yo);
         player.draw(g);
+        enemy1.draw(g);
+        enemy2.draw(g);
+        enemy3.draw(g);
 
+        Image img = null;
 
         // Apply offsets to tile map and draw  it
         tmap.draw(g, xo, yo);
@@ -270,12 +332,11 @@ public class Game extends GameCore {
 
     private void nextLevel() {
         if (level == 1) {
-            level = 2;
             init("map2.txt");
+            level = 2;
         } else {
             level = 1;
             init("map1.txt");
-
         }
     }
 
@@ -296,6 +357,8 @@ public class Game extends GameCore {
         player.setVelocityX(0);
         updateAnim("pause");
         status = "Alive :D";
+        right=false;
+        left=false;
     }
 
 
