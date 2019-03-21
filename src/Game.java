@@ -60,11 +60,15 @@ public class Game extends GameCore {
      * @param args The list of parameters this program might use (ignored)
      */
     public static void main(String[] args) {
+        Sound s = new Sound("sounds/song.wav");
 
+        s.start();
         Game gct = new Game();
         gct.init("map1.txt");
         // Start in windowed mode with the given screen height and width
         gct.run(false, screenWidth, screenHeight);
+
+
     }
 
     /**
@@ -72,6 +76,7 @@ public class Game extends GameCore {
      * create animations, register event handlers
      */
     public void init(String mapFile) {
+
         // Load the tile map and print it out so we can check it is valid
         tmap.loadMap("maps", mapFile);
 
@@ -400,6 +405,8 @@ public class Game extends GameCore {
         //player.setY(150);
         gameOver = true;
         status = "Dead X.X";
+        Sound s = new Sound("sounds/death.wav");
+        s.start();
     }
 
     private void resetGame() {//reset the player character to original state
