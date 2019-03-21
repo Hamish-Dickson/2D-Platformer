@@ -153,6 +153,7 @@ public class Game extends GameCore {
                 if (jumpsDone < 2) {
                     if (player.getVelocityY() >= 0) {//only allow jump when trajectory is downwards
                         player.setVelocityY(-0.20f);
+                        player.shiftY(-0.01f);
                         up = false;
                         updateAnim("up");
                         Sound s = new Sound("sounds/jump.wav");
@@ -252,13 +253,14 @@ public class Game extends GameCore {
         }
 
         int tileCoordX = Math.round(player.getX() / tmap.getTileWidth());
-        int tileCoordY = Math.round(player.getY() / tmap.getTileHeight());//offset by 1 so the player sits on top of the block
+        int tileCoordY = Math.round((player.getY()+player.getHeight()) / tmap.getTileHeight());//offset by 1 so the player sits on top of the block
 
         if (tmap.getTileChar(tileCoordX, tileCoordY) == 'p' || tmap.getTileChar(tileCoordX, tileCoordY) == 'b') {//if grass or dirt block touched
             if(falling){
                 player.setVelocityX(0);
+                player.setVelocityY(0);
             }
-            player.setY((float) (player.getY()-(0.5*player.getHeight()-5)));
+            player.setY((float) (tileCoordY * tmap.getTileHeight()) - player.getHeight());
             falling = false;
             jumpsDone = 0;
         } else {
