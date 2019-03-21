@@ -127,7 +127,7 @@ public class Sprite {
      * Updates this Sprite's Animation and its position based
      * on the elapsedTime.
      *
-     * @param The time that has elapsed since the last call to update
+     * @param elapsedTime The time that has elapsed since the last call to update
      */
     public void update(long elapsedTime) {
         if (!render) return;

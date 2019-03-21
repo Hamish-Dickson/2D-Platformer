@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Random;
 
 import game2D.*;
 
@@ -126,8 +127,8 @@ public class Game extends GameCore {
                 enemy3.setX(800);
 
                 enemy1.setY(150);
-                enemy2.setY(180);
-                enemy3.setY(150);
+                enemy2.setY(185);
+                enemy3.setY(100);
                 break;
             case 2:
                 enemy1.setX(270);
@@ -176,11 +177,12 @@ public class Game extends GameCore {
         enemy1.setOffsets(xo, yo);
         enemy2.setOffsets(xo, yo);
         enemy3.setOffsets(xo, yo);
-        player.draw(g);
+
         enemy1.draw(g);
         enemy2.draw(g);
         enemy3.draw(g);
 
+        player.draw(g);
         // Apply offsets to tile map and draw  it
         tmap.draw(g, xo, yo);
 
@@ -245,6 +247,16 @@ public class Game extends GameCore {
             enemies.add(enemy3);
 
             for (Sprite enemy : enemies) {
+                if ((enemy.getX() >850 && enemy.isDirection()) || (enemy.getX()<250 && !enemy.isDirection())){
+                    enemy.setDirection(!enemy.isDirection());
+                }
+
+                if(enemy.isDirection()){
+                    enemy.setVelocityX(0.04f);
+                }
+                else{
+                    enemy.setVelocityX(-0.04f);
+                }
                 enemy.update(elapsed);
             }
             // Now update the sprites animation and position
@@ -308,7 +320,7 @@ public class Game extends GameCore {
 
         boolean collided = false;
 
-        for (Sprite enemy: enemies){
+        for (Sprite enemy: enemies){//for each enemy
             if(boundingBoxCollision(enemy, player)){
                 collided = true;
             }
@@ -320,9 +332,15 @@ public class Game extends GameCore {
 
     }
 
+    /**
+     * function to check if 2 sprites are colliding with each other
+     * @param s1 first sprite to be checked
+     * @param s2 second sprite to be checked
+     * @return true if collision, else false
+     */
     public boolean boundingBoxCollision(Sprite s1, Sprite s2) {
-
-        return false;
+        return ((s1.getX() + s1.getImage().getWidth(null) >s2.getX()) && s1.getX() <=s2.getX()) &&
+                ((s1.getY() + s1.getImage().getHeight(null) > s2.getY()) && s1.getY() < s2.getY());
     }
 
     /**
@@ -379,7 +397,7 @@ public class Game extends GameCore {
         updateAnim("dead");
         player.setVelocityX(0);
         player.setVelocityY(0);
-        player.shiftY(-5 * tmap.getTileHeight());
+        //player.setY(150);
         gameOver = true;
         status = "Dead X.X";
     }
