@@ -247,20 +247,19 @@ public class Game extends GameCore {
         // now it just checks if the player has gone off the bottom
         // of the tile map.
 
-        if (player.getY() + player.getHeight() > tmap.getPixelHeight()) {
+        if (s.getY() + s.getHeight() > tmap.getPixelHeight()) {
             // Put the player back on the map
-            player.setY(tmap.getPixelHeight() - player.getHeight());
+            s.setY(tmap.getPixelHeight() - s.getHeight());
         }
 
-        int tileCoordX = Math.round(player.getX() / tmap.getTileWidth());
-        int tileCoordY = Math.round((player.getY()+player.getHeight()) / tmap.getTileHeight());//offset by 1 so the player sits on top of the block
+        int tileCoordX = (int)(s.getX() / tmap.getTileWidth());
+        int tileCoordY = (int)((s.getY()+s.getHeight()) / tmap.getTileHeight());//offset by 1 so the player sits on top of the block
 
         if (tmap.getTileChar(tileCoordX, tileCoordY) == 'p' || tmap.getTileChar(tileCoordX, tileCoordY) == 'b') {//if grass or dirt block touched
-            if(falling){
-                player.setVelocityX(0);
-                player.setVelocityY(0);
-            }
-            player.setY((float) (tileCoordY * tmap.getTileHeight()) - player.getHeight());
+
+                s.setVelocityX(0);
+                s.setVelocityY(0);
+            s.setY((float) (tileCoordY * tmap.getTileHeight()) - s.getHeight());
             falling = false;
             jumpsDone = 0;
         } else {
