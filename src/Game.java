@@ -42,6 +42,7 @@ public class Game extends GameCore {
     TileMap tmap = new TileMap();    // Our tile map, note that we load it in init()
 
     long total;                    // The score will be the total time elapsed since a crash
+    private int level = 1; //keep track of current level
 
 
     /**
@@ -53,7 +54,7 @@ public class Game extends GameCore {
     public static void main(String[] args) {
 
         Game gct = new Game();
-        gct.init();
+        gct.init("map1.txt");
         // Start in windowed mode with the given screen height and width
         gct.run(false, screenWidth, screenHeight);
     }
@@ -62,14 +63,9 @@ public class Game extends GameCore {
      * Initialise the class, e.g. set up variables, load images,
      * create animations, register event handlers
      */
-    public void init() {
-        Sprite s;    // Temporary reference to a sprite
-
+    public void init(String mapFile) {
         // Load the tile map and print it out so we can check it is valid
-        tmap.loadMap("maps", "map.txt");
-
-        // Create a set of background sprites that we can 
-        // rearrange to give the illusion of motion
+        tmap.loadMap("maps", mapFile);
 
         playerAnim = new Animation();
         playerAnim.addFrame(loadImage("images/sprites/player_pause1.png"), 4);
@@ -144,13 +140,11 @@ public class Game extends GameCore {
             // Make adjustments to the speed of the sprite due to gravity
             if (falling) {
                 player.setVelocityY(player.getVelocityY() + (gravity * elapsed));
-            } else {
-                player.setVelocityY(0);
             }
             player.setAnimationSpeed(1.0f);
 
             if (up) {
-                if (jumpsDone < 2) {
+                if (jumpsDone < 2) {//only allows for 2 jumps per landing i.e the player must land before they jump again
                     if (player.getVelocityY() >= 0) {//only allow jump when trajectory is downwards
                         player.setVelocityY(-0.20f);
                         player.shiftY(-0.01f);
@@ -252,13 +246,13 @@ public class Game extends GameCore {
             s.setY(tmap.getPixelHeight() - s.getHeight());
         }
 
-        int tileCoordX = (int)(s.getX() / tmap.getTileWidth());
-        int tileCoordY = (int)((s.getY()+s.getHeight()) / tmap.getTileHeight());//offset by 1 so the player sits on top of the block
+        int tileCoordX = (int) (s.getX() / tmap.getTileWidth());
+        int tileCoordY = (int) ((s.getY() + s.getHeight()) / tmap.getTileHeight());//offset by 1 so the player sits on top of the block
 
         if (tmap.getTileChar(tileCoordX, tileCoordY) == 'p' || tmap.getTileChar(tileCoordX, tileCoordY) == 'b') {//if grass or dirt block touched
-
-                s.setVelocityX(0);
+            if (s.getVelocityY() > 0) {
                 s.setVelocityY(0);
+            }
             s.setY((float) (tileCoordY * tmap.getTileHeight()) - s.getHeight());
             falling = false;
             jumpsDone = 0;
@@ -268,7 +262,21 @@ public class Game extends GameCore {
         if (tmap.getTileChar(tileCoordX, tileCoordY) == 't') {
             endGame();
         }
+        if (tmap.getTileChar(tileCoordX, tileCoordY) == 'f') {
+            nextLevel();
+        }
 
+    }
+
+    private void nextLevel() {
+        if(level == 1){
+            level = 2;
+            init("map2.txt");
+        }
+        else{
+            init("map1.txt");
+            level =1;
+        }
     }
 
     private void endGame() {
@@ -283,6 +291,8 @@ public class Game extends GameCore {
         gameOver = false;
         player.setX(20);
         player.setY(100);
+        player.setVelocityY(0);
+        player.setVelocityX(0);
         updateAnim("pause");
     }
 
@@ -298,14 +308,20 @@ public class Game extends GameCore {
 
         if (key == KeyEvent.VK_ESCAPE) stop();
 
-        if (key == KeyEvent.VK_UP) {
-            up = true;
-        }
+        if (key == KeyEvent.VK_UP) up = true;
+
         if (key == KeyEvent.VK_LEFT) left = true;
 
         if (key == KeyEvent.VK_RIGHT) right = true;
 
         if (key == KeyEvent.VK_F5) resetGame();
+
+        if (key == KeyEvent.VK_M) {
+            init("map2.txt");
+        }
+        if (key == KeyEvent.VK_N) {
+            init("map1.txt");
+        }
 
     }
 
