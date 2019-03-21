@@ -4,40 +4,49 @@ import java.awt.*;
 import javax.swing.ImageIcon;
 
 /**
-    Simple abstract class used for testing. Subclasses should
-    implement the draw() method.
-*/
+ * Simple abstract class used for testing. Subclasses should
+ * implement the draw() method.
+ */
 public abstract class GameCoreFS {
 
     protected static final int FONT_SIZE = 24;
 
     private boolean isRunning;
     protected ScreenManager screen;
-    private	long startTime;
+    private long startTime;
     private long currTime;
     private long elapsedTime;
 
     private long frames;
 
 
-    /** Signals the game loop that it's time to quit */
-    public void stop() { isRunning = false; }
+    /**
+     * Signals the game loop that it's time to quit
+     */
+    public void stop() {
+        isRunning = false;
+    }
 
 
-    /** Calls init() and gameLoop() */
+    /**
+     * Calls init() and gameLoop()
+     */
     public void run() {
         try {
             init();
             gameLoop();
+        } finally {
+            screen.restoreScreen();
         }
-        finally { screen.restoreScreen(); }
     }
 
 
-    /** Sets full screen mode and initiates and objects.    */
+    /**
+     * Sets full screen mode and initiates and objects.
+     */
     public void init() {
         screen = new ScreenManager();
-        DisplayMode displayMode = new DisplayMode(1024,768,32,0);
+        DisplayMode displayMode = new DisplayMode(1024, 768, 32, 0);
         screen.setFullScreen(displayMode);
 
         Window window = screen.getFullScreenWindow();
@@ -51,16 +60,20 @@ public abstract class GameCoreFS {
         currTime = 1;
     }
 
-    public Image loadImage(String fileName) { return new ImageIcon(fileName).getImage(); }
+    public Image loadImage(String fileName) {
+        return new ImageIcon(fileName).getImage();
+    }
 
-    /** Runs through the game loop until stop() is called. */
+    /**
+     * Runs through the game loop until stop() is called.
+     */
     public void gameLoop() {
         startTime = System.currentTimeMillis();
         currTime = startTime;
-        frames = 1;		// Keep a note of frames for performance measure
+        frames = 1;        // Keep a note of frames for performance measure
 
         Graphics2D g;
-        
+
         while (isRunning) {
             elapsedTime = System.currentTimeMillis() - currTime;
             currTime += elapsedTime;
@@ -70,7 +83,7 @@ public abstract class GameCoreFS {
 
             // draw the screen
             g = screen.getGraphics();
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             draw(g);
             g.dispose();
             screen.update();
@@ -79,23 +92,26 @@ public abstract class GameCoreFS {
             // take a nap
             try {
                 Thread.sleep(20);
+            } catch (InterruptedException ex) {
             }
-            catch (InterruptedException ex) { }
         }
         System.exit(0);
     }
 
-    public float getFPS()
-    {
-    	if (currTime - startTime <= 0) return 0.0f;
-    	return (float)frames/((currTime - startTime)/1000.0f);
+    public float getFPS() {
+        if (currTime - startTime <= 0) return 0.0f;
+        return (float) frames / ((currTime - startTime) / 1000.0f);
     }
 
-    /** Updates the state of the game/animation based on the
-        amount of elapsed time that has passed. */
+    /**
+     * Updates the state of the game/animation based on the
+     * amount of elapsed time that has passed.
+     */
     public void update(long elapsedTime) { /* do nothing  */ }
 
 
-    /** Draws to the screen. Subclasses must override this method. */
+    /**
+     * Draws to the screen. Subclasses must override this method.
+     */
     public abstract void draw(Graphics2D g);
 }

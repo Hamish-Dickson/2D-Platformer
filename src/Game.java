@@ -41,8 +41,9 @@ public class Game extends GameCore {
 
     TileMap tmap = new TileMap();    // Our tile map, note that we load it in init()
 
-    long total;                    // The score will be the total time elapsed since a crash
+
     private int level = 1; //keep track of current level
+    private String status = "Alive :D";
 
 
     /**
@@ -86,8 +87,6 @@ public class Game extends GameCore {
      * the game.
      */
     public void initialiseGame() {
-        total = 0;
-
         player.setX(20);
         player.setY(100);
         player.setVelocityX(0);
@@ -125,9 +124,9 @@ public class Game extends GameCore {
         tmap.draw(g, xo, yo);
 
         // Show score and status information
-        String msg = String.format("Score: %d", total / 100);
+        String msg = "Status: " + status;
         g.setColor(Color.darkGray);
-        g.drawString(msg, getWidth() - 80, 50);
+        g.drawString(msg, getWidth() - 150, 50);
     }
 
     /**
@@ -253,6 +252,7 @@ public class Game extends GameCore {
             if (s.getVelocityY() > 0) {
                 s.setVelocityY(0);
             }
+
             s.setY((float) (tileCoordY * tmap.getTileHeight()) - s.getHeight());
             falling = false;
             jumpsDone = 0;
@@ -269,13 +269,13 @@ public class Game extends GameCore {
     }
 
     private void nextLevel() {
-        if(level == 1){
+        if (level == 1) {
             level = 2;
             init("map2.txt");
-        }
-        else{
+        } else {
+            level = 1;
             init("map1.txt");
-            level =1;
+
         }
     }
 
@@ -285,6 +285,7 @@ public class Game extends GameCore {
         player.setVelocityY(0);
         player.shiftY(-5 * tmap.getTileHeight());
         gameOver = true;
+        status = "Dead X.X";
     }
 
     private void resetGame() {//reset the player character to original state
@@ -294,6 +295,7 @@ public class Game extends GameCore {
         player.setVelocityY(0);
         player.setVelocityX(0);
         updateAnim("pause");
+        status = "Alive :D";
     }
 
 
@@ -317,10 +319,14 @@ public class Game extends GameCore {
         if (key == KeyEvent.VK_F5) resetGame();
 
         if (key == KeyEvent.VK_M) {
+            level = 2;
             init("map2.txt");
+
         }
         if (key == KeyEvent.VK_N) {
+            level = 1;
             init("map1.txt");
+
         }
 
     }
