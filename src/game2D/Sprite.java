@@ -41,6 +41,11 @@ public class Sprite {
     private int yoff = 0;
 
     /**
+     * true denotes right, false denotes left
+     */
+    private boolean direction;
+
+    /**
      * Creates a new Sprite object with the specified Animation.
      *
      * @param a The animation to use for the sprite.
@@ -342,4 +347,11 @@ public class Sprite {
     }
 
 
+    public boolean isDirection() {
+        return direction;
+    }
+
+    public void setDirection(boolean direction) {
+        this.direction = direction;
+    }
 }

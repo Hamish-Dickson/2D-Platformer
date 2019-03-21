@@ -49,6 +49,8 @@ public class Game extends GameCore {
     private int level = 1; //keep track of current level
     private String status = "Alive :D";
 
+    private int animDuration = 500;
+
 
     /**
      * The obligatory main method that creates
@@ -74,12 +76,12 @@ public class Game extends GameCore {
 
 
         playerAnim = new Animation();
-        playerAnim.addFrame(loadImage("images/sprites/player_pause1.png"), 4);
-        playerAnim.addFrame(loadImage("images/sprites/player_pause2.png"), 4);
+        playerAnim.addFrame(loadImage("images/sprites/player_pause1.png"), animDuration);
+        playerAnim.addFrame(loadImage("images/sprites/player_pause2.png"), animDuration);
 
         Animation enemyAnim = new Animation();
-        enemyAnim.addFrame(loadImage("images/sprites/enemy_0.png"), 4);
-        enemyAnim.addFrame(loadImage("images/sprites/enemy_1.png"), 4);
+        enemyAnim.addFrame(loadImage("images/sprites/enemy_0.png"), animDuration);
+        enemyAnim.addFrame(loadImage("images/sprites/enemy_1.png"), animDuration);
         enemyAnim.play();
 
         // Initialise the player with an animation
@@ -145,7 +147,6 @@ public class Game extends GameCore {
                 enemy2.setY(180);
                 enemy3.setY(150);
         }
-
     }
 
     /**
@@ -179,8 +180,6 @@ public class Game extends GameCore {
         enemy1.draw(g);
         enemy2.draw(g);
         enemy3.draw(g);
-
-        Image img = null;
 
         // Apply offsets to tile map and draw  it
         tmap.draw(g, xo, yo);
@@ -240,55 +239,91 @@ public class Game extends GameCore {
                 }
             }
 
+            ArrayList<Sprite> enemies = new ArrayList<Sprite>();
+            enemies.add(enemy1);
+            enemies.add(enemy2);
+            enemies.add(enemy3);
 
+            for (Sprite enemy : enemies) {
+                enemy.update(elapsed);
+            }
             // Now update the sprites animation and position
             player.update(elapsed);
 
             // Then check for any collisions that may have occurred
             handleTileMapCollisions(player, elapsed);
+            
+            //check for sprite collisions
+            handleSpriteCollisions();
         } else {//if the game is over
 
         }
 
     }
 
+
+
     private void updateAnim(String direction) {
         System.out.println(direction);
         switch (direction) {
             case "left":
                 playerAnim = new Animation();
-                playerAnim.addFrame(loadImage("images/sprites/player_left1.png"), 5);
-                playerAnim.addFrame(loadImage("images/sprites/player_left2.png"), 5);
+                playerAnim.addFrame(loadImage("images/sprites/player_left1.png"), animDuration);
+                playerAnim.addFrame(loadImage("images/sprites/player_left2.png"), animDuration);
                 break;
 
             case "right":
                 playerAnim = new Animation();
-                playerAnim.addFrame(loadImage("images/sprites/player_right1.png"), 5);
-                playerAnim.addFrame(loadImage("images/sprites/player_right2.png"), 5);
+                playerAnim.addFrame(loadImage("images/sprites/player_right1.png"), animDuration);
+                playerAnim.addFrame(loadImage("images/sprites/player_right2.png"), animDuration);
                 break;
             case "up":
                 playerAnim = new Animation();
-                playerAnim.addFrame(loadImage("images/sprites/player_up1.png"), 5);
-                playerAnim.addFrame(loadImage("images/sprites/player_up2.png"), 5);
+                playerAnim.addFrame(loadImage("images/sprites/player_up1.png"), animDuration);
+                playerAnim.addFrame(loadImage("images/sprites/player_up2.png"), animDuration);
                 break;
             case "dead":
                 playerAnim = new Animation();
-                playerAnim.addFrame(loadImage("images/sprites/player_dead.png"), 5);
+                playerAnim.addFrame(loadImage("images/sprites/player_dead.png"), animDuration);
                 break;
             case "pause":
                 playerAnim = new Animation();
-                playerAnim.addFrame(loadImage("images/sprites/player_pause1.png"), 5);
-                playerAnim.addFrame(loadImage("images/sprites/player_pause2.png"), 5);
+                playerAnim.addFrame(loadImage("images/sprites/player_pause1.png"), animDuration);
+                playerAnim.addFrame(loadImage("images/sprites/player_pause2.png"), animDuration);
                 break;
             default:
                 playerAnim = new Animation();
-                playerAnim.addFrame(loadImage("images/sprites/player_pause1.png"), 5);
-                playerAnim.addFrame(loadImage("images/sprites/player_pause2.png"), 5);
+                playerAnim.addFrame(loadImage("images/sprites/player_pause1.png"), animDuration);
+                playerAnim.addFrame(loadImage("images/sprites/player_pause2.png"), animDuration);
                 break;
         }
         player.setAnimation(playerAnim);
     }
 
+    private void handleSpriteCollisions() {
+        ArrayList<Sprite> enemies = new ArrayList<Sprite>();
+        enemies.add(enemy1);
+        enemies.add(enemy2);
+        enemies.add(enemy3);
+
+        boolean collided = false;
+
+        for (Sprite enemy: enemies){
+            if(boundingBoxCollision(enemy, player)){
+                collided = true;
+            }
+        }
+
+        if(collided){
+            endGame();
+        }
+
+    }
+
+    public boolean boundingBoxCollision(Sprite s1, Sprite s2) {
+
+        return false;
+    }
 
     /**
      * Checks and handles collisions with the tile map for the
@@ -357,8 +392,8 @@ public class Game extends GameCore {
         player.setVelocityX(0);
         updateAnim("pause");
         status = "Alive :D";
-        right=false;
-        left=false;
+        right = false;
+        left = false;
     }
 
 
@@ -394,10 +429,6 @@ public class Game extends GameCore {
 
     }
 
-
-    public boolean boundingBoxCollision(Sprite s1, Sprite s2) {
-        return false;
-    }
 
 
     public void keyReleased(KeyEvent e) {
