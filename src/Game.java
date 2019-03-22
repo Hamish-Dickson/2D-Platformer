@@ -368,7 +368,8 @@ public class Game extends GameCore {
         int tileCoordX = (int) (s.getX() / tmap.getTileWidth());
         int tileCoordY = (int) ((s.getY() + s.getHeight()) / tmap.getTileHeight());//offset by 1 so the player sits on top of the block
 
-        if (tmap.getTileChar(tileCoordX, tileCoordY) == 'p' || tmap.getTileChar(tileCoordX, tileCoordY) == 'b') {//if grass or dirt block touched
+        if (tmap.getTileChar(tileCoordX, tileCoordY) == 'p' || tmap.getTileChar(tileCoordX, tileCoordY) == 'b' ||
+                tmap.getTileChar(tileCoordX+1, tileCoordY) == 'p' || tmap.getTileChar(tileCoordX+1, tileCoordY) =='b'){//if grass or dirt block touched
             if (s.getVelocityY() > 0) {
                 s.setVelocityY(0);
             }
